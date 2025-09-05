@@ -1,0 +1,2306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>生日快乐祝福页面</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义颜色和字体 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FF6B8B',
+            secondary: '#8A6FFF',
+            accent: '#FFB547',
+            dark: '#333A48',
+            'time-day': '#FF6B8B',
+            'time-hour': '#8A6FFF',
+            'time-minute': '#4FD1C5',
+            'time-second': '#FFB547',
+            'gift-pink': '#FF7EB9',
+            'gift-blue': '#6BB5FF',
+            'gift-green': '#72D6A3',
+          },
+          fontFamily: {
+            cheese: ['"Ma Shan Zheng"', 'cursive'],
+            sans: ['"Nunito"', 'sans-serif'],
+            digital: ['"Orbitron"', 'sans-serif']
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .text-shadow {
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+      .text-shadow-glow {
+        text-shadow: 0 0 10px currentColor, 0 0 20px currentColor/70, 0 0 30px currentColor/50;
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+      .animate-float-delay-1 {
+        animation: float 6s ease-in-out 1s infinite;
+      }
+      .animate-float-delay-2 {
+        animation: float 6s ease-in-out 2s infinite;
+      }
+      .animate-float-small {
+        animation: floatSmall 4s ease-in-out infinite;
+      }
+      .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        opacity: 0;
+      }
+      .digit-pulse {
+        animation: digitPulse 2s infinite;
+      }
+      .time-label {
+        transform: translateY(0);
+        transition: transform 0.3s ease;
+      }
+      .time-box:hover .time-label {
+        transform: translateY(5px);
+      }
+      .countdown-separator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(138, 111, 255, 0.8);
+        font-weight: bold;
+        animation: pulse 2s infinite;
+      }
+      .time-box-glow {
+        box-shadow: 0 0 20px currentColor/70;
+      }
+      .border-gradient {
+        border-image: linear-gradient(to right, currentColor 0%, transparent 50%, currentColor 100%) 1;
+      }
+      .particle {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0.7;
+      }
+      .floating-shape {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.3;
+        z-index: 0;
+      }
+      .star {
+        position: absolute;
+        background-color: white;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: twinkle 3s infinite alternate;
+      }
+      .grid-pattern {
+        background-image: 
+          linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 30px 30px;
+      }
+      .content-background {
+        backdrop-filter: blur(12px) saturate(180%);
+        background-color: rgba(255, 255, 255, 0.75);
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      /* 响应式倒计时容器 */
+      .countdown-responsive {
+        --countdown-base-size: min(16vw, 120px);
+        width: var(--countdown-base-size);
+        height: var(--countdown-base-size);
+      }
+      /* 响应式数字 */
+      .digit-responsive {
+        font-size: calc(var(--countdown-base-size) * 0.6);
+        line-height: 1;
+      }
+      /* 响应式角落装饰 */
+      .corner-decoration {
+        width: calc(var(--countdown-base-size) * 0.08);
+        height: var(--countdown-base-size);
+      }
+      /* 响应式标签 */
+      .label-responsive {
+        font-size: calc(var(--countdown-base-size) * 0.15);
+        padding: calc(var(--countdown-base-size) * 0.04) calc(var(--countdown-base-size) * 0.1);
+        margin-top: calc(var(--countdown-base-size) * 0.05);
+      }
+      /* 响应式分隔符 */
+      .separator-responsive {
+        font-size: calc(var(--countdown-base-size) * 0.3);
+        width: calc(var(--countdown-base-size) * 0.2);
+      }
+      /* 日期选择器样式 */
+      .date-picker-input {
+        appearance: none;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(138, 111, 255, 0.3);
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        padding-right: 2rem;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        outline: none;
+      }
+      .date-picker-icon {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(138, 111, 255, 0.7); /* text-secondary/70 */
+        pointer-events: none;
+      }
+      
+      .date-picker-container {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .date-button {
+        background-color: #8a6fff; /* bg-secondary */
+        color: white;
+        border-radius: 0.5rem; /* rounded-lg */
+        padding: 0.5rem 1rem; /* py-2 px-4 */
+        font-size: 0.875rem; /* text-sm */
+        font-weight: 500; /* font-medium */
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+      }
+      
+      .date-button:hover {
+        background-color: rgba(138, 111, 255, 0.9); /* hover:bg-secondary/90 */
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* hover:shadow-lg */
+        transform: translateY(-0.125rem); /* hover:-translate-y-0.5 */
+      }
+      
+      .date-button:active {
+        transform: translateY(0); /* active:translate-y-0 */
+      }
+      
+      .date-section {
+        background-color: rgba(255, 255, 255, 0.9); /* bg-white/90 */
+        backdrop-filter: blur(12px); /* backdrop-blur-sm */
+        border-radius: 0.75rem; /* rounded-xl */
+        padding: 1rem; /* p-4 */
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* shadow-lg */
+        border: 1px solid rgba(138, 111, 255, 0.2); /* border border-secondary/20 */
+        margin-bottom: 1.5rem; /* mb-6 */
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .date-section::before {
+        content: '';
+        position: absolute;
+        right: -2.5rem; /* -right-10 */
+        top: -2.5rem; /* -top-10 */
+        width: 8rem; /* w-32 */
+        height: 8rem; /* h-32 */
+        background-color: rgba(138, 111, 255, 0.1); /* bg-secondary/10 */
+        border-radius: 50%;
+        filter: blur(40px); /* blur-2xl */
+      }
+      
+      .date-section::after {
+        content: '';
+        position: absolute;
+        left: -2rem; /* -left-8 */
+        bottom: -2rem; /* -bottom-8 */
+        width: 6rem; /* w-24 */
+        height: 6rem; /* h-24 */
+        background-color: rgba(255, 107, 139, 0.1); /* bg-primary/10 */
+        border-radius: 50%;
+        filter: blur(40px); /* blur-2xl */
+      }
+      
+      .date-title {
+        font-family: 'Ma Shan Zheng', cursive; /* font-cheese */
+        font-size: 1.125rem; /* text-lg */
+        color: #8a6fff; /* text-secondary */
+        margin-bottom: 0.75rem; /* mb-3 */
+        position: relative;
+        z-index: 10;
+      }
+      
+      /* 新增：更丰富的粒子效果 */
+      .particle-glow {
+        box-shadow: 0 0 10px currentColor;
+      }
+      
+      /* 倒计时动画 */
+      @keyframes countdown {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      
+      .countdown-animation {
+        animation: countdown 0.5s ease-in-out;
+      }
+      
+      /* 盒子抽奖功能相关样式 - 小巧可爱风格 */
+      .prize-box-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin: 0 auto;
+        max-width: 320px;
+        perspective: 1200px;
+        padding: 10px 0;
+      }
+      
+      /* 小巧可爱的礼盒样式 */
+      .gift-box {
+        width: 100%;
+        aspect-ratio: 3/4;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        transform-origin: bottom center;
+        animation: giftFloat 5s ease-in-out infinite;
+      }
+      
+      .gift-box:nth-child(1) {
+        animation-delay: 0s;
+      }
+      
+      .gift-box:nth-child(2) {
+        animation-delay: 0.5s;
+      }
+      
+      .gift-box:nth-child(3) {
+        animation-delay: 1s;
+      }
+      
+      /* 礼盒浮动动画 - 更活泼可爱 */
+      @keyframes giftFloat {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-6px) rotate(-1deg); }
+        75% { transform: translateY(-6px) rotate(1deg); }
+      }
+      
+      /* 礼盒身体 - 小巧设计 */
+      .gift-body {
+        width: 100%;
+        height: 80%;
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+        border: 3px solid white;
+      }
+      
+      /* 礼盒盖子 */
+      .gift-lid {
+        width: 100%;
+        height: 20%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 -3px 8px rgba(0,0,0,0.1);
+        z-index: 2;
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border: 3px solid white;
+        border-bottom: none;
+      }
+      
+      /* 礼盒丝带 - 更精致 */
+      .gift-ribbon-horizontal {
+        position: absolute;
+        width: 100%;
+        height: 14%;
+        background-color: rgba(255,255,255,0.85);
+        top: 43%;
+        z-index: 1;
+      }
+      
+      .gift-ribbon-vertical {
+        position: absolute;
+        width: 14%;
+        height: 100%;
+        background-color: rgba(255,255,255,0.85);
+        left: 43%;
+        z-index: 1;
+      }
+      
+      /* 丝带蝴蝶结 - 更小巧可爱 */
+      .gift-bow {
+        position: absolute;
+        width: 40%;
+        height: 30%;
+        top: -15%;
+        left: 30%;
+        z-index: 3;
+      }
+      
+      .gift-bow::before, .gift-bow::after {
+        content: '';
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 50%;
+      }
+      
+      .gift-bow::before {
+        left: 0;
+        transform: rotate(-30deg);
+      }
+      
+      .gift-bow::after {
+        right: 0;
+        transform: rotate(30deg);
+      }
+      
+      .gift-bow-center {
+        position: absolute;
+        width: 25%;
+        height: 25%;
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 50%;
+        top: 35%;
+        left: 37.5%;
+        z-index: 4;
+      }
+      
+      /* 礼盒内部 - 奖品 */
+      .gift-content {
+        position: absolute;
+        width: 85%;
+        height: 65%;
+        top: 50%;
+        left: 7.5%;
+        transform: translateY(100%);
+        background-color: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s;
+        z-index: 0;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+      
+      .gift-content img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      /* 礼盒打开状态 */
+      .gift-box.opened .gift-lid {
+        transform: translateY(-80%) rotateX(110deg);
+      }
+      
+      .gift-box.opened .gift-content {
+        transform: translateY(-50%);
+      }
+      
+      /* 新增：礼盒装饰小点 */
+      .gift-dot {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background-color: rgba(255,255,255,0.6);
+        border-radius: 50%;
+        z-index: 1;
+      }
+      
+      /* 抽奖动画相关 */
+      .gift-box.highlighted {
+        animation: giftScale 0.5s ease-in-out infinite alternate;
+        z-index: 10;
+        box-shadow: 0 0 15px currentColor;
+      }
+      
+      /* 盒子缩放动画 */
+      @keyframes giftScale {
+        from { transform: scale(1) translateY(0) rotate(0deg); }
+        to { transform: scale(1.1) translateY(-6px) rotate(1deg); }
+      }
+      
+      /* 抽奖按钮样式增强 */
+      .draw-button {
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .draw-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: all 0.6s ease;
+        z-index: -1;
+      }
+      
+      .draw-button:hover::before {
+        left: 100%;
+      }
+      
+      .draw-button:disabled {
+        opacity: 0.7;
+        transform: none;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+      
+      /* 抽奖区域背景装饰 */
+      .draw-decoration {
+        position: absolute;
+        border-radius: 50%;
+        z-index: 0;
+        filter: blur(30px);
+        opacity: 0.3;
+      }
+      
+      /* 奖品弹窗样式 */
+      .prize-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+        pointer-events: none;
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        z-index: 1000;
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(255,255,255,0.8);
+      }
+      
+      .prize-popup.active {
+        opacity: 1;
+        pointer-events: all;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 999;
+        transition: opacity 0.3s ease;
+      }
+      
+      .popup-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+      
+      .prize-image-container {
+        width: 100%;
+        height: 180px;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border: 3px solid white;
+      }
+      
+      .prize-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+      }
+      
+      .prize-image:hover {
+        transform: scale(1.05);
+      }
+      
+      /* 庆祝星星表情 */
+      .celebration-star {
+        position: absolute;
+        color: gold;
+        opacity: 0;
+        text-shadow: 0 0 10px gold;
+        animation: starCelebrate 1.5s ease-out forwards;
+        font-size: 24px;
+      }
+      
+      @keyframes starCelebrate {
+        0% { transform: scale(0) rotate(0deg); opacity: 1; }
+        50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+        100% { transform: scale(0) rotate(360deg); opacity: 0; }
+      }
+      
+      @keyframes bounceIn {
+        0% { transform: scale(0); opacity: 0; }
+        60% { transform: scale(1.1); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      
+      .bounce-in {
+        animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+      
+      .prize-shimmer {
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .prize-shimmer::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          to right,
+          rgba(255,255,255,0) 0%,
+          rgba(255,255,255,0.3) 50%,
+          rgba(255,255,255,0) 100%
+        );
+        transform: rotate(30deg);
+        animation: shimmer 3s infinite;
+      }
+      
+      @keyframes shimmer {
+        0% { transform: translateX(-100%) rotate(30deg); }
+        100% { transform: translateX(100%) rotate(30deg); }
+      }
+      
+      /* 抽奖功能区动态渐变背景 */
+      .draw-section-gradient {
+        background: linear-gradient(135deg, #fff0f5 0%, #f0f0ff 50%, #fff8e6 100%);
+        background-size: 200% 200%;
+        animation: gradientBackground 15s ease infinite;
+      }
+      
+      @keyframes gradientBackground {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      /* 抽奖结果闪光效果 */
+      .result-shine {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,255,210,0.8) 0%, rgba(255,255,255,0) 70%);
+        opacity: 0;
+        animation: shineEffect 1.5s ease-out;
+        pointer-events: none;
+      }
+      
+      @keyframes shineEffect {
+        0% { opacity: 0; transform: scale(0.5); }
+        50% { opacity: 1; }
+        100% { opacity: 0; transform: scale(2); }
+      }
+      
+      /* 礼盒打开时的粒子效果 */
+      .gift-particle {
+        position: absolute;
+        pointer-events: none;
+        z-index: 5;
+      }
+      
+      /* 礼盒表面光泽效果 - 更柔和 */
+      .gift-shine {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 50%);
+        z-index: 1;
+        opacity: 0.8;
+      }
+      
+      /* 表情符号装饰 */
+      .emoji-decor {
+        position: absolute;
+        font-size: 16px;
+        opacity: 0;
+        animation: floatEmoji 4s ease-in-out forwards;
+        pointer-events: none;
+      }
+      
+      @keyframes floatEmoji {
+        0% { transform: translateY(20px) rotate(0deg); opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+      }
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    @keyframes floatSmall {
+      0% { transform: translateY(0px) translateX(0px); }
+      25% { transform: translateY(-8px) translateX(5px); }
+      50% { transform: translateY(0px) translateX(10px); }
+      75% { transform: translateY(8px) translateX(5px); }
+      100% { transform: translateY(0px) translateX(0px); }
+    }
+    
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes digitPulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px currentColor); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 20px currentColor); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    
+    @keyframes particleMove {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(var(--x-end), var(--y-end)) rotate(360deg); }
+    }
+    
+    @keyframes twinkle {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes bounce-in {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes spin-particle {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+    }
+  </style>
+  
+  <!-- 引入字体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Nunito:wght@400;600;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen font-sans text-dark overflow-x-hidden" id="main-body">
+  <!-- 动态背景容器 -->
+  <div id="dynamic-bg" class="fixed inset-0 z-0 grid-pattern">
+    <!-- 渐变背景层 -->
+    <div class="absolute inset-0 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 opacity-80"></div>
+    
+    <!-- 流动渐变层 -->
+    <div class="absolute inset-0 bg-gradient-45deg 
+                from-primary/10 via-secondary/10 to-accent/10 
+                opacity-60 animate-[gradientShift_15s_ease_infinite]
+                bg-[length:400%_400%]"></div>
+    
+    <!-- 浮动形状装饰 -->
+    <div class="floating-shape bg-primary w-[600px] h-[600px] -top-[300px] -left-[300px] animate-[float_30s_ease-in-out_infinite]"></div>
+    <div class="floating-shape bg-secondary w-[500px] h-[500px] top-[20%] right-[-250px] animate-[float_35s_ease-in-out_5s_infinite]"></div>
+    <div class="floating-shape bg-accent w-[400px] h-[400px] bottom-[-200px] left-[10%] animate-[float_40s_ease-in-out_10s_infinite]"></div>
+    
+    <!-- 星星装饰 -->
+    <div id="stars-container" class="absolute inset-0 pointer-events-none"></div>
+    
+    <!-- 烟花容器 -->
+    <div id="fireworks" class="absolute inset-0 pointer-events-none"></div>
+    
+    <!-- 粒子容器 -->
+    <div id="particles-container" class="absolute inset-0 pointer-events-none"></div>
+  </div>
+  
+  <!-- 背景音乐元素 (隐藏) -->
+  <audio id="music1" loop autoplay>
+    <source src="/nop.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="music2" loop autoplay>
+    <source src="/SacredPlaySecretPlace.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- 主内容容器 -->
+  <div class="relative z-10 container mx-auto px-4 py-6 sm:py-8">
+    <!-- 标题区域 -->
+    <header class="text-center mb-8 sm:mb-12 mt-4">
+      <h1 class="text-[clamp(1.8rem,8vw,4rem)] font-cheese text-primary text-shadow mb-3 sm:mb-4 animate-[float_8s_ease-in-out_infinite]">生日快乐！</h1>
+      <p class="text-[clamp(0.9rem,3vw,1.2rem)] text-dark/80 max-w-2xl mx-auto px-2">愿今天充满无尽的快乐和美好的回忆</p>
+    </header>
+    
+    <!-- 祝福语轮播区域 -->
+    <section class="relative h-[clamp(100px,25vh,250px)] flex items-center justify-center mb-8 sm:mb-12 overflow-hidden">
+      <div id="blessing-container" class="text-center px-4"></div>
+    </section>
+  </div>
+  
+  <!-- 娱乐功能区 -->
+  <div class="relative z-10 py-6 sm:py-8">
+    <!-- 功能区背景 -->
+    <div class="absolute inset-0 grid-pattern opacity-60"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 opacity-80"></div>
+    <div class="absolute inset-0 bg-gradient-45deg 
+                from-primary/10 via-secondary/10 to-accent/10 
+                opacity-60 animate-[gradientShift_15s_ease_infinite]
+                bg-[length:400%_400%]"></div>
+    
+    <!-- 半透明内容层 -->
+    <div class="relative z-10 content-background py-6 sm:py-8 shadow-lg">
+      <div class="container mx-auto px-4">
+        <!-- 生日日期选择区域 -->
+        <section class="date-section">
+          <h3 class="date-title flex items-center">
+            <i class="fa fa-calendar-check-o mr-2"></i>选择生日日期
+          </h3>
+          <div class="flex flex-col sm:flex-row gap-3 items-center relative z-10">
+            <div class="date-picker-container w-full sm:w-auto flex-1">
+              <input type="date" id="birthday-picker" class="date-picker-input w-full" 
+                     title="选择生日日期">
+              <i class="fa fa-calendar date-picker-icon"></i>
+            </div>
+            <button id="set-birthday" class="date-button flex items-center">
+              <i class="fa fa-heart mr-1.5"></i> 设置生日
+            </button>
+            <div id="selected-date-display" class="text-sm text-dark/70 hidden items-center">
+              <i class="fa fa-check-circle text-primary mr-1"></i>
+              <span>已设置: <span id="display-date"></span></span>
+            </div>
+          </div>
+          <div class="mt-2 text-xs text-dark/60 relative z-10 px-1">
+            <i class="fa fa-info-circle mr-1"></i> 设置后倒计时将自动更新为距离您生日的剩余时间
+          </div>
+        </section>
+        
+        <!-- 1. 生日倒计时 -->
+        <section class="mb-8 sm:mb-12 rounded-2xl p-4 sm:p-6 md:p-10 shadow-xl relative overflow-hidden">
+          <!-- 背景装饰 -->
+          <div class="absolute inset-0 overflow-hidden opacity-20">
+            <div class="absolute -right-10 -top-10 w-[150px] sm:w-60 h-[150px] sm:h-60 bg-time-day rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute left-1/4 -bottom-20 w-[200px] sm:w-80 h-[200px] sm:h-80 bg-time-hour rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+            <div class="absolute right-1/3 top-1/3 w-[100px] sm:w-40 h-[100px] sm:h-40 bg-time-minute rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
+            <div class="absolute left-1/3 bottom-1/4 w-[130px] sm:w-52 h-[130px] sm:h-52 bg-time-second rounded-full blur-3xl animate-pulse" style="animation-delay: 1.5s;"></div>
+          </div>
+          
+          <!-- 倒计时标题 -->
+          <h2 class="text-[clamp(1.3rem,6vw,2.5rem)] font-cheese text-center text-dark mb-6 sm:mb-10 relative z-10">
+            <span class="relative inline-block">
+              生日倒计时
+              <span class="absolute -bottom-2 left-0 w-full h-2 bg-gradient-to-r from-time-day via-time-hour to-time-second rounded-full"></span>
+            </span>
+          </h2>
+          
+          <!-- 响应式倒计时布局 -->
+          <div id="countdown-container" class="flex justify-center items-center gap-1 sm:gap-2 md:gap-4 relative z-10 my-4 sm:my-6 overflow-x-auto hide-scrollbar pb-2 px-2">
+            <!-- 天 -->
+            <div class="flex flex-col items-center min-w-[60px] sm:min-w-[80px] group">
+              <div class="time-box relative countdown-responsive flex items-center justify-center mb-1 sm:mb-2 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-time-day/30 transition-all duration-500 group-hover:time-box-glow group-hover:scale-105 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-time-day/5 to-transparent"></div>
+                <div class="absolute inset-0 bg-[linear-gradient(rgba(255,107,139,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,107,139,0.05)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+                
+                <div class="digit text-time-day font-digital digit-responsive font-bold digit-pulse text-shadow-glow relative z-10" id="days">00</div>
+                
+                <div class="absolute top-[3%] left-[3%] corner-decoration border-t-2 border-l-2 border-time-day/50"></div>
+                <div class="absolute top-[3%] right-[3%] corner-decoration border-t-2 border-r-2 border-time-day/50"></div>
+                <div class="absolute bottom-[3%] left-[3%] corner-decoration border-b-2 border-l-2 border-time-day/50"></div>
+                <div class="absolute bottom-[3%] right-[3%] corner-decoration border-b-2 border-r-2 border-time-day/50"></div>
+              </div>
+              <div class="time-label label-responsive font-medium bg-time-day/20 rounded-full backdrop-blur-sm text-time-day font-semibold shadow-md">天</div>
+            </div>
+            
+            <!-- 分隔符 -->
+            <div class="countdown-separator separator-responsive my-auto hidden sm:flex">
+              <span class="relative">
+                <i class="fa fa-circle-o absolute -top-1 -left-1"></i>
+                <i class="fa fa-circle-o absolute -bottom-1 -right-1"></i>
+                :
+              </span>
+            </div>
+            
+            <!-- 时 -->
+            <div class="flex flex-col items-center min-w-[60px] sm:min-w-[80px] group">
+              <div class="time-box relative countdown-responsive flex items-center justify-center mb-1 sm:mb-2 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-time-hour/30 transition-all duration-500 group-hover:time-box-glow group-hover:scale-105 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-time-hour/5 to-transparent"></div>
+                <div class="absolute inset-0 bg-[linear-gradient(rgba(138,111,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(138,111,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+                
+                <div class="digit text-time-hour font-digital digit-responsive font-bold digit-pulse text-shadow-glow relative z-10" id="hours">00</div>
+                
+                <div class="absolute top-[3%] left-[3%] corner-decoration border-t-2 border-l-2 border-time-hour/50"></div>
+                <div class="absolute top-[3%] right-[3%] corner-decoration border-t-2 border-r-2 border-time-hour/50"></div>
+                <div class="absolute bottom-[3%] left-[3%] corner-decoration border-b-2 border-l-2 border-time-hour/50"></div>
+                <div class="absolute bottom-[3%] right-[3%] corner-decoration border-b-2 border-r-2 border-time-hour/50"></div>
+              </div>
+              <div class="time-label label-responsive font-medium bg-time-hour/20 rounded-full backdrop-blur-sm text-time-hour font-semibold shadow-md">时</div>
+            </div>
+            
+            <!-- 分隔符 -->
+            <div class="countdown-separator separator-responsive my-auto hidden sm:flex">
+              <span class="relative">
+                <i class="fa fa-circle-o absolute -top-1 -left-1"></i>
+                <i class="fa fa-circle-o absolute -bottom-1 -right-1"></i>
+                :
+              </span>
+            </div>
+            
+            <!-- 分 -->
+            <div class="flex flex-col items-center min-w-[60px] sm:min-w-[80px] group">
+              <div class="time-box relative countdown-responsive flex items-center justify-center mb-1 sm:mb-2 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-time-minute/30 transition-all duration-500 group-hover:time-box-glow group-hover:scale-105 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-time-minute/5 to-transparent"></div>
+                <div class="absolute inset-0 bg-[linear-gradient(rgba(79,209,197,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(79,209,197,0.05)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+                
+                <div class="digit text-time-minute font-digital digit-responsive font-bold digit-pulse text-shadow-glow relative z-10" id="minutes">00</div>
+                
+                <div class="absolute top-[3%] left-[3%] corner-decoration border-t-2 border-l-2 border-time-minute/50"></div>
+                <div class="absolute top-[3%] right-[3%] corner-decoration border-t-2 border-r-2 border-time-minute/50"></div>
+                <div class="absolute bottom-[3%] left-[3%] corner-decoration border-b-2 border-l-2 border-time-minute/50"></div>
+                <div class="absolute bottom-[3%] right-[3%] corner-decoration border-b-2 border-r-2 border-time-minute/50"></div>
+              </div>
+              <div class="time-label label-responsive font-medium bg-time-minute/20 rounded-full backdrop-blur-sm text-time-minute font-semibold shadow-md">分</div>
+            </div>
+            
+            <!-- 分隔符 -->
+            <div class="countdown-separator separator-responsive my-auto hidden sm:flex">
+              <span class="relative">
+                <i class="fa fa-circle-o absolute -top-1 -left-1"></i>
+                <i class="fa fa-circle-o absolute -bottom-1 -right-1"></i>
+                :
+              </span>
+            </div>
+            
+            <!-- 秒 -->
+            <div class="flex flex-col items-center min-w-[60px] sm:min-w-[80px] group">
+              <div class="time-box relative countdown-responsive flex items-center justify-center mb-1 sm:mb-2 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-time-second/30 transition-all duration-500 group-hover:time-box-glow group-hover:scale-105 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-time-second/5 to-transparent"></div>
+                <div class="absolute inset-0 bg-[linear-gradient(rgba(255,181,71,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,181,71,0.05)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+                
+                <div class="digit text-time-second font-digital digit-responsive font-bold digit-pulse text-shadow-glow relative z-10" id="seconds">00</div>
+                
+                <div class="absolute top-[3%] left-[3%] corner-decoration border-t-2 border-l-2 border-time-second/50"></div>
+                <div class="absolute top-[3%] right-[3%] corner-decoration border-t-2 border-r-2 border-time-second/50"></div>
+                <div class="absolute bottom-[3%] left-[3%] corner-decoration border-b-2 border-l-2 border-time-second/50"></div>
+                <div class="absolute bottom-[3%] right-[3%] corner-decoration border-b-2 border-r-2 border-time-second/50"></div>
+              </div>
+              <div class="time-label label-responsive font-medium bg-time-second/20 rounded-full backdrop-blur-sm text-time-second font-semibold shadow-md">秒</div>
+            </div>
+          </div>
+          
+          <!-- 互动粒子装饰 -->
+          <div class="flex justify-center gap-2 sm:gap-3 my-6 sm:my-8 flex-wrap">
+            <div class="w-2 sm:w-3 h-2 sm:h-3 bg-time-day rounded-full animate-float cursor-pointer hover:scale-200 transition-all duration-300 hover:brightness-125"></div>
+            <div class="w-3 sm:w-4 h-3 sm:h-4 bg-time-hour rounded-full animate-float-delay-1 cursor-pointer hover:scale-200 transition-all duration-300 hover:brightness-125"></div>
+            <div class="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-time-minute rounded-full animate-float-delay-2 cursor-pointer hover:scale-200 transition-all duration-300 hover:brightness-125"></div>
+            <div class="w-3.5 sm:w-5 h-3.5 sm:h-5 bg-time-second rounded-full animate-float cursor-pointer hover:scale-200 transition-all duration-300 hover:brightness-125"></div>
+            <div class="w-2 sm:w-3 h-2 sm:h-3 bg-time-day/70 rounded-full animate-float-delay-1 cursor-pointer hover:scale-200 transition-all duration-300 hover:brightness-125"></div>
+            <div class="w-3 sm:w-4 h-3 sm:h-4 bg-time-hour/70 rounded-full animate-float-delay-2 cursor-pointer hover:scale-200 transition-all duration-300 hover:brightness-125"></div>
+            <div class="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-time-minute/70 rounded-full animate-float cursor-pointer hover:scale-200 transition-all duration-300 hover:brightness-125"></div>
+            <div class="w-3.5 sm:w-5 h-3.5 sm:h-5 bg-time-second/70 rounded-full animate-float-delay-1 cursor-pointer hover:scale-200 transition-all duration-300 hover:brightness-125"></div>
+          </div>
+        </section>
+        
+        <!-- 两个小功能并排 -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- 1. 盒子抽奖功能 - 优化版 -->
+          <div class="draw-section-gradient backdrop-blur-md rounded-xl p-4 sm:p-5 shadow-md card-hover relative overflow-hidden">
+            <!-- 背景装饰元素 -->
+            <div class="draw-decoration bg-gift-pink w-40 h-40 -top-20 -left-20 animate-float"></div>
+            <div class="draw-decoration bg-gift-blue w-32 h-32 top-1/3 -right-16 animate-float-delay-1"></div>
+            <div class="draw-decoration bg-gift-green w-24 h-24 -bottom-12 left-1/4 animate-float-delay-2"></div>
+            
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gift-blue/10 rounded-full -mr-16 -mt-16"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-gift-pink/10 rounded-full -ml-12 -mb-12"></div>
+            
+            <div class="text-center mb-3 relative z-10">
+              <i class="fa fa-gift text-2.5xl sm:text-3xl text-secondary animate-pulse"></i>
+              <h3 class="text-base sm:text-lg font-cheese mt-1 text-dark">幸运抽奖</h3>
+            </div>
+            
+            <!-- 抽奖礼盒容器 -->
+            <div class="mb-4 relative z-10 flex justify-center">
+              <div class="prize-box-container">
+                <!-- 礼盒1 - 粉色 -->
+                <div class="gift-box" data-gift-id="1">
+                  <div class="gift-body" style="background-color: #FF7EB9;">
+                    <div class="gift-shine"></div>
+                    <div class="gift-ribbon-horizontal"></div>
+                    <div class="gift-ribbon-vertical"></div>
+                    <div class="gift-bow"></div>
+                    <div class="gift-bow-center"></div>
+                    <!-- 可爱的装饰点 -->
+                    <div class="gift-dot" style="top: 20%; left: 20%;"></div>
+                    <div class="gift-dot" style="top: 70%; left: 30%;"></div>
+                    <div class="gift-dot" style="top: 40%; left: 80%;"></div>
+                    <div class="gift-content">
+                      <img src="https://picsum.photos/seed/gift1/200/300" alt="精美礼品" class="gift-prize-image">
+                    </div>
+                  </div>
+                  <div class="gift-lid" style="background-color: #FF6B8B;"></div>
+                </div>
+                
+                <!-- 礼盒2 - 蓝色 -->
+                <div class="gift-box" data-gift-id="2">
+                  <div class="gift-body" style="background-color: #6BB5FF;">
+                    <div class="gift-shine"></div>
+                    <div class="gift-ribbon-horizontal"></div>
+                    <div class="gift-ribbon-vertical"></div>
+                    <div class="gift-bow"></div>
+                    <div class="gift-bow-center"></div>
+                    <!-- 可爱的装饰点 -->
+                    <div class="gift-dot" style="top: 60%; left: 25%;"></div>
+                    <div class="gift-dot" style="top: 30%; left: 70%;"></div>
+                    <div class="gift-dot" style="top: 80%; left: 50%;"></div>
+                    <div class="gift-content">
+                      <img src="https://picsum.photos/seed/gift2/200/300" alt="惊喜礼物" class="gift-prize-image">
+                    </div>
+                  </div>
+                  <div class="gift-lid" style="background-color: #5297E8;"></div>
+                </div>
+                
+                <!-- 礼盒3 - 绿色 -->
+                <div class="gift-box" data-gift-id="3">
+                  <div class="gift-body" style="background-color: #72D6A3;">
+                    <div class="gift-shine"></div>
+                    <div class="gift-ribbon-horizontal"></div>
+                    <div class="gift-ribbon-vertical"></div>
+                    <div class="gift-bow"></div>
+                    <div class="gift-bow-center"></div>
+                    <!-- 可爱的装饰点 -->
+                    <div class="gift-dot" style="top: 25%; left: 75%;"></div>
+                    <div class="gift-dot" style="top: 50%; left: 20%;"></div>
+                    <div class="gift-dot" style="top: 75%; left: 60%;"></div>
+                    <div class="gift-content">
+                      <img src="https://picsum.photos/seed/gift3/200/300" alt="祝福卡片" class="gift-prize-image">
+                    </div>
+                  </div>
+                  <div class="gift-lid" style="background-color: #5BC995;"></div>
+                </div>
+              </div>
+            </div>
+            
+            <button id="draw-btn" class="draw-button w-full py-2 bg-gradient-to-r from-gift-blue to-gift-pink text-white rounded-lg transition font-medium text-xs sm:text-sm shadow-md hover:shadow-lg hover:from-gift-pink hover:to-gift-blue transform hover:-translate-y-0.5 active:translate-y-0 relative z-10">
+              <i class="fa fa-play-circle mr-1.5"></i> 开始抽奖
+            </button>
+            
+            <!-- 已获得的奖品记录 -->
+            <div class="mt-3 text-xs text-dark/70 relative z-10">
+              <i class="fa fa-history mr-1"></i>
+              <span>已获得: <span id="prize-history">暂无</span></span>
+            </div>
+          </div>
+          
+          <!-- 2. 随机祝福图片 -->
+          <div class="bg-white/80 backdrop-blur-md rounded-xl p-4 sm:p-5 shadow-md card-hover">
+            <div class="text-center mb-3">
+              <i class="fa fa-image text-2.5xl sm:text-3xl text-primary"></i>
+              <h3 class="text-base sm:text-lg font-cheese mt-1 text-dark">祝福图片</h3>
+            </div>
+            <div class="min-h-[70px] sm:min-h-[80px] mb-3 flex items-center justify-center">
+              <img id="blessing-image" src="https://picsum.photos/seed/birthday1/200/100" alt="生日祝福图片" class="rounded-lg max-w-full max-h-[70px] sm:max-h-[80px] object-cover">
+            </div>
+            <button id="image-btn" class="w-full py-1.5 sm:py-2 bg-primary/20 hover:bg-primary/40 rounded-lg transition font-medium text-xs sm:text-sm">
+              换一张图
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 抽奖结果弹窗 -->
+  <div class="popup-overlay" id="popup-overlay"></div>
+  <div class="prize-popup" id="prize-popup">
+    <div class="result-shine"></div>
+    <div class="text-center mb-3">
+      <h3 class="text-xl font-cheese text-primary" id="popup-title">恭喜您获得!</h3>
+    </div>
+    <div class="prize-image-container">
+      <img id="popup-image" src="" alt="奖品图片" class="prize-image">
+    </div>
+    <div class="text-center mb-4">
+      <p class="text-lg font-bold text-dark" id="popup-prize-name"></p>
+    </div>
+    <div class="flex gap-3">
+      <button id="confirm-prize" class="flex-1 py-2 bg-primary text-white rounded-lg transition font-medium shadow hover:bg-primary/90">
+        确认礼物
+      </button>
+      <button id="redraw-prize" class="flex-1 py-2 bg-secondary text-white rounded-lg transition font-medium shadow hover:bg-secondary/90">
+        重新抽奖
+      </button>
+    </div>
+  </div>
+  
+  <script>
+    // 背景音乐控制
+    const music1 = document.getElementById('music1');
+    const music2 = document.getElementById('music2');
+    const body = document.getElementById('main-body');
+    let currentMusic = 1;
+    
+    // 日期选择相关变量
+    let selectedBirthday = null; // 存储用户选择的生日日期
+    const birthdayPicker = document.getElementById('birthday-picker');
+    const setBirthdayBtn = document.getElementById('set-birthday');
+    const selectedDateDisplay = document.getElementById('selected-date-display');
+    const displayDateElement = document.getElementById('display-date');
+    
+    // 抽奖功能相关变量
+    const giftBoxes = document.querySelectorAll('.gift-box');
+    const drawBtn = document.getElementById('draw-btn');
+    const prizePopup = document.getElementById('prize-popup');
+    const popupOverlay = document.getElementById('popup-overlay');
+    const confirmPrizeBtn = document.getElementById('confirm-prize');
+    const redrawPrizeBtn = document.getElementById('redraw-prize');
+    const popupTitle = document.getElementById('popup-title');
+    const popupPrizeName = document.getElementById('popup-prize-name');
+    const popupImage = document.getElementById('popup-image');
+    const prizeHistory = document.getElementById('prize-history');
+    
+    // 奖品数据 - 扩展了更多信息和描述
+    const prizes = [
+      {
+        id: 1,
+        name: "精美礼品",
+        description: "一份精心准备的精美礼物，代表着最诚挚的祝福",
+        color: "#FF7EB9",
+        image: "https://picsum.photos/seed/gift1/400/300",
+        giftId: 1,
+        icon: "fa-gift"
+      },
+      {
+        id: 2,
+        name: "惊喜礼物",
+        description: "充满惊喜的特别礼物，愿它带给你满满的快乐",
+        color: "#6BB5FF",
+        image: "https://picsum.photos/seed/gift2/400/300",
+        giftId: 2,
+        icon: "fa-surprise"
+      },
+      {
+        id: 3,
+        name: "祝福卡片",
+        description: "一张写满祝福的卡片，承载着最温暖的心意",
+        color: "#72D6A3",
+        image: "https://picsum.photos/seed/gift3/400/300",
+        giftId: 3,
+        icon: "fa-envelope"
+      }
+    ];
+    
+    // 已获得的奖品记录
+    let obtainedPrizes = [];
+    
+    // 可爱的表情符号集合
+    const cuteEmojis = ['🎉', '🎁', '🎈', '✨', '💖', '🌟', '💝', '😊', '🥳', '🎊'];
+    
+    // 抽奖状态管理
+    let isDrawing = false;
+    let selectedGiftId = null;
+    let highlightTimer = null;
+    let drawInterval = null;
+    
+    // 用于颜色渐变的颜色数组
+    const colors = [
+      '#FF6B8B', // primary
+      '#8A6FFF', // secondary
+      '#FFB547', // accent
+      '#4FD1C5', // teal
+      '#6366F1', // indigo
+      '#F56565', // red
+    ];
+    
+    // DOM元素
+    const blessingContainer = document.getElementById('blessing-container');
+    const particlesContainer = document.getElementById('particles-container');
+    const starsContainer = document.getElementById('stars-container');
+    const countdownContainer = document.getElementById('countdown-container');
+    
+    // 当前显示的祝福索引
+    let currentBlessingIndex = 0;
+    
+    // 初始化页面
+    function init() {
+      // 初始化音乐
+      initMusic();
+      
+      // 创建星星背景
+      createStars(100);
+      
+      // 显示第一条祝福语
+      showBlessing(currentBlessingIndex);
+      
+      // 设置自动切换祝福语（每10秒）
+      setInterval(() => {
+        currentBlessingIndex = (currentBlessingIndex + 1) % blessings.length;
+        showBlessing(currentBlessingIndex);
+      }, 10000);
+      
+      // 创建背景粒子效果
+      createBackgroundParticles(50);
+      
+      // 随机生成一些庆祝元素
+      setTimeout(() => {
+        createConfetti(30);
+      }, 2000);
+      
+      // 初始化娱乐功能
+      initEntertainmentFeatures();
+      
+      // 添加鼠标互动效果
+      initMouseInteraction();
+      
+      // 监听窗口大小变化，更新倒计时比例
+      window.addEventListener('resize', updateCountdownProportions);
+      // 初始更新
+      updateCountdownProportions();
+      
+      // 初始化日期选择器
+      initDatePicker();
+      
+      // 初始化抽奖功能 - 重构版
+      initPrizeDraw();
+    }
+    
+    // 初始化抽奖功能 - 重构版
+    function initPrizeDraw() {
+      // 抽奖按钮点击事件
+      drawBtn.addEventListener('click', startDraw);
+      
+      // 确认奖品按钮点击事件
+      confirmPrizeBtn.addEventListener('click', confirmPrize);
+      
+      // 重新抽奖按钮点击事件
+      redrawPrizeBtn.addEventListener('click', redrawPrize);
+      
+      // 点击遮罩层关闭弹窗
+      popupOverlay.addEventListener('click', () => {
+        if (!isDrawing) {
+          closePopup();
+        }
+      });
+      
+      // 键盘ESC关闭弹窗
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !isDrawing) {
+          closePopup();
+        }
+      });
+      
+      // 为礼盒添加点击事件（可选功能）
+      giftBoxes.forEach(box => {
+        box.addEventListener('click', () => {
+          if (!isDrawing && !box.classList.contains('opened')) {
+            // 单个点击打开效果
+            openGiftBox(box);
+          }
+        });
+      });
+    }
+    
+    // 开始抽奖 - 重构版
+    function startDraw() {
+      if (isDrawing) return;
+      
+      isDrawing = true;
+      drawBtn.disabled = true;
+      drawBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1.5"></i> 抽奖中...';
+      drawBtn.classList.add('opacity-70', 'cursor-not-allowed');
+      
+      // 播放抽奖音效（模拟）
+      playDrawSound();
+      
+      // 重置所有礼盒状态
+      resetAllGiftBoxes();
+      
+      // 添加可爱的表情符号
+      addCuteEmojis(5);
+      
+      // 抽奖动画参数
+      let currentIndex = 0;
+      let speed = 150; // 初始速度
+      let step = 0;
+      const totalSteps = 50; // 总步数
+      
+      // 清除任何现有计时器
+      if (highlightTimer) clearInterval(highlightTimer);
+      
+      // 开始动画
+      highlightTimer = setInterval(() => {
+        // 移除所有高亮
+        giftBoxes.forEach(box => box.classList.remove('highlighted'));
+        
+        // 高亮当前盒子
+        giftBoxes[currentIndex].classList.add('highlighted');
+        
+        // 计算下一个索引
+        currentIndex = (currentIndex + 1) % giftBoxes.length;
+        
+        // 逐步减速
+        step++;
+        if (step > totalSteps * 0.7) {
+          // 最后30%的步骤开始减速
+          speed = 150 + (step - totalSteps * 0.7) * 5;
+        }
+        
+        // 达到总步数，结束抽奖
+        if (step >= totalSteps) {
+          clearInterval(highlightTimer);
+          // 随机选择最终礼盒
+          finalizeDraw();
+          return;
+        }
+      }, speed);
+    }
+    
+    // 添加可爱的表情符号装饰
+    function addCuteEmojis(count) {
+      const drawSection = document.querySelector('.draw-section-gradient');
+      
+      for (let i = 0; i < count; i++) {
+        const emoji = document.createElement('div');
+        emoji.className = 'emoji-decor';
+        emoji.textContent = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
+        
+        // 随机位置
+        const left = Math.random() * 80 + 10; // 10% - 90%
+        const top = Math.random() * 80 + 10;
+        const delay = Math.random() * 3;
+        const size = Math.random() * 8 + 16; // 16px - 24px
+        
+        emoji.style.left = `${left}%`;
+        emoji.style.top = `${top}%`;
+        emoji.style.animationDelay = `${delay}s`;
+        emoji.style.fontSize = `${size}px`;
+        
+        drawSection.appendChild(emoji);
+        
+        // 动画结束后移除
+        setTimeout(() => {
+          emoji.remove();
+        }, 4000 + delay * 1000);
+      }
+    }
+    
+    // 完成抽奖，随机选择最终礼盒 - 重构版
+    function finalizeDraw() {
+      // 清除计时器
+      if (highlightTimer) clearInterval(highlightTimer);
+      
+      // 随机选择一个礼盒（真正的随机选择）
+      const randomIndex = Math.floor(Math.random() * giftBoxes.length);
+      selectedGiftId = parseInt(giftBoxes[randomIndex].dataset.giftId);
+      
+      // 移除所有高亮
+      giftBoxes.forEach(box => {
+        box.classList.remove('highlighted');
+      });
+      
+      // 高亮最终选中的礼盒
+      const selectedBox = giftBoxes[randomIndex];
+      selectedBox.classList.add('highlighted');
+      
+      // 短暂延迟后打开礼盒
+      setTimeout(() => {
+        // 打开礼盒
+        openGiftBox(selectedBox);
+        
+        // 找到对应的奖品
+        const prize = prizes.find(p => p.giftId === selectedGiftId);
+        
+        // 显示抽奖结果弹窗
+        setTimeout(() => {
+          showPrizeResult(prize);
+          isDrawing = false;
+          drawBtn.disabled = false;
+          drawBtn.innerHTML = '<i class="fa fa-play-circle mr-1.5"></i> 开始抽奖';
+          drawBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+        }, 800);
+      }, 800);
+    }
+    
+    // 打开礼盒的方法 - 重构版
+    function openGiftBox(box) {
+      if (box.classList.contains('opened')) return;
+      
+      // 添加打开类
+      box.classList.add('opened');
+      
+      // 创建礼盒打开时的粒子效果
+      createGiftOpeningParticles(box);
+      
+      // 播放打开音效（模拟）
+      playOpenSound();
+    }
+    
+    // 创建礼盒打开时的粒子效果 - 重构版
+    function createGiftOpeningParticles(box) {
+      const rect = box.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // 获取礼盒颜色
+      const boxColor = getComputedStyle(box.querySelector('.gift-body')).backgroundColor;
+      
+      // 创建粒子
+      for (let i = 0; i < 60; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'gift-particle';
+        
+        // 随机属性
+        const size = Math.random() * 6 + 2;
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 100 + 30;
+        const duration = Math.random() * 2 + 1;
+        
+        // 计算终点位置
+        const endX = Math.cos(angle) * distance;
+        const endY = Math.sin(angle) * distance;
+        
+        // 随机形状：圆形或方形
+        const shape = Math.random() > 0.5 ? 'circle' : 'square';
+        
+        // 应用样式
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.backgroundColor = boxColor;
+        particle.style.left = `${centerX}px`;
+        particle.style.top = `${centerY}px`;
+        particle.style.transform = 'translate(-50%, -50%)';
+        particle.style.opacity = '0.9';
+        
+        if (shape === 'circle') {
+          particle.style.borderRadius = '50%';
+        } else {
+          particle.style.borderRadius = '2px';
+        }
+        
+        document.body.appendChild(particle);
+        
+        // 动画效果
+        setTimeout(() => {
+          particle.style.transition = `transform ${duration}s cubic-bezier(0.17, 0.67, 0.83, 0.67), opacity ${duration}s ease-out`;
+          particle.style.transform = `translate(calc(-50% + ${endX}px), calc(-50% + ${endY}px))`;
+          particle.style.opacity = '0';
+        }, 10);
+        
+        // 动画结束后移除元素
+        setTimeout(() => {
+          particle.remove();
+        }, duration * 1000);
+      }
+    }
+    
+    // 播放抽奖音效（模拟）
+    function playDrawSound() {
+      console.log('播放抽奖音效');
+    }
+    
+    // 播放打开礼盒音效（模拟）
+    function playOpenSound() {
+      console.log('播放打开礼盒音效');
+    }
+    
+    // 显示抽奖结果 - 重构版
+    function showPrizeResult(prize) {
+      // 设置弹窗内容
+      popupTitle.textContent = "恭喜您获得!";
+      popupTitle.style.color = prize.color;
+      popupPrizeName.textContent = prize.name;
+      
+      // 添加奖品描述
+      const descriptionElement = document.createElement('p');
+      descriptionElement.className = 'text-sm text-dark/70 mb-3';
+      descriptionElement.textContent = prize.description;
+      
+      // 确保只添加一个描述元素
+      const existingDescription = popupPrizeName.nextElementSibling;
+      if (existingDescription && existingDescription.tagName === 'P') {
+        existingDescription.remove();
+      }
+      popupPrizeName.parentNode.insertBefore(descriptionElement, popupPrizeName.nextSibling);
+      
+      popupImage.src = prize.image;
+      popupImage.alt = prize.name;
+      
+      // 添加弹出动画
+      popupOverlay.classList.add('active');
+      
+      // 延迟一点时间添加弹窗动画，使效果更流畅
+      setTimeout(() => {
+        prizePopup.classList.add('active');
+        
+        // 为弹窗添加粒子效果和表情符号
+        const popupRect = prizePopup.getBoundingClientRect();
+        const centerX = popupRect.left + popupRect.width / 2;
+        const centerY = popupRect.top + popupRect.height / 2;
+        
+        for (let i = 0; i < 40; i++) {
+          createEnhancedParticles(1, document.body, prize.color);
+        }
+        
+        // 添加表情符号
+        for (let i = 0; i < 6; i++) {
+          const emoji = document.createElement('div');
+          emoji.className = 'emoji-decor';
+          emoji.textContent = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
+          
+          const size = Math.random() * 10 + 20;
+          
+          emoji.style.left = `${centerX}px`;
+          emoji.style.top = `${centerY}px`;
+          emoji.style.transform = 'translate(-50%, -50%)';
+          emoji.style.fontSize = `${size}px`;
+          emoji.style.animationDuration = `${Math.random() * 2 + 2}s`;
+          
+          document.body.appendChild(emoji);
+          
+          setTimeout(() => {
+            emoji.remove();
+          }, 4000);
+        }
+      }, 100);
+    }
+    
+    // 确认获得奖品
+    function confirmPrize() {
+      // 记录获得的奖品
+      const currentPrizeName = popupPrizeName.textContent;
+      obtainedPrizes.push(currentPrizeName);
+      
+      // 更新奖品记录显示
+      updatePrizeHistory();
+      
+      // 关闭弹窗
+      closePopup();
+      
+      // 显示确认动画
+      showConfirmationAnimation();
+    }
+    
+    // 重新抽奖
+    function redrawPrize() {
+      // 关闭弹窗
+      closePopup();
+      
+      // 重置所有礼盒状态
+      resetAllGiftBoxes();
+      
+      // 延迟一点时间再开始新的抽奖
+      setTimeout(() => {
+        selectedGiftId = null;
+        startDraw();
+      }, 500);
+    }
+    
+    // 重置所有礼盒状态 - 重构版
+    function resetAllGiftBoxes() {
+      giftBoxes.forEach(box => {
+        box.classList.remove('opened', 'highlighted');
+        // 重置动画，确保下次打开时有完整动画
+        box.style.animation = 'none';
+        box.offsetHeight; // 触发重绘
+        box.style.animation = '';
+      });
+      selectedGiftId = null;
+    }
+    
+    // 关闭弹窗
+    function closePopup() {
+      prizePopup.classList.remove('active');
+      popupOverlay.classList.remove('active');
+    }
+    
+    // 更新奖品历史记录 - 重构版
+    function updatePrizeHistory() {
+      if (obtainedPrizes.length === 0) {
+        prizeHistory.textContent = "暂无";
+        return;
+      }
+      
+      // 显示最近3个获得的奖品
+      const displayPrizes = obtainedPrizes.slice(-3);
+      prizeHistory.textContent = displayPrizes.join('、');
+      
+      // 如果有多个奖品，显示总数
+      if (obtainedPrizes.length > 3) {
+        prizeHistory.textContent += `...(共${obtainedPrizes.length}个)`;
+      }
+    }
+    
+    // 创建更丰富的粒子效果
+    function createEnhancedParticles(count, container, color) {
+      const rect = container.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle particle-glow';
+        
+        // 随机属性
+        const size = Math.random() * 8 + 2;
+        const particleColor = color || colors[Math.floor(Math.random() * colors.length)];
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 120 + 40;
+        const duration = Math.random() * 4 + 2;
+        const opacity = Math.random() * 0.8 + 0.2;
+        
+        // 计算终点位置
+        const endX = Math.cos(angle) * distance;
+        const endY = Math.sin(angle) * distance;
+        
+        // 应用样式
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.backgroundColor = particleColor;
+        particle.style.color = particleColor;
+        particle.style.opacity = opacity;
+        particle.style.left = `${centerX}px`;
+        particle.style.top = `${centerY}px`;
+        particle.style.transform = 'translate(-50%, -50%)';
+        particle.style.boxShadow = `0 0 ${size * 2}px ${particleColor}`;
+        particle.style.setProperty('--x', `${endX}px`);
+        particle.style.setProperty('--y', `${endY}px`);
+        
+        container.appendChild(particle);
+        
+        // 启动动画
+        setTimeout(() => {
+          particle.style.animation = `spin-particle ${duration}s ease-out forwards`;
+        }, 10);
+        
+        // 动画结束后移除元素
+        setTimeout(() => {
+          particle.remove();
+        }, duration * 1000);
+      }
+    }
+    
+    // 初始化音乐播放设置
+    function initMusic() {
+      // 设置音量
+      music1.volume = 0.5;
+      music2.volume = 0.5;
+      
+      // 尝试自动播放第一首音乐
+      playMusic(1);
+      
+      // 监听页面交互，解决浏览器自动播放限制
+      body.addEventListener('click', forcePlayMusic);
+      body.addEventListener('touchstart', forcePlayMusic, { once: true });
+      body.addEventListener('keydown', forcePlayMusic, { once: true });
+    }
+    
+    // 强制播放音乐（处理浏览器限制）
+    function forcePlayMusic() {
+      if (currentMusic === 1 && music1.paused) {
+        music1.play().catch(e => console.log('播放失败:', e));
+      } else if (currentMusic === 2 && music2.paused) {
+        music2.play().catch(e => console.log('播放失败:', e));
+      }
+    }
+    
+    // 播放指定音乐
+    function playMusic(num) {
+      if (num === 1) {
+        music2.pause();
+        music1.currentTime = 0;
+        music1.play().then(() => {
+          currentMusic = 1;
+          // 监听音乐结束事件
+          music1.onended = () => {
+            setTimeout(() => playMusic(2), 8000); // 间隔8秒播放下一首
+          };
+        }).catch(e => {
+          console.log('自动播放被阻止，等待用户交互:', e);
+        });
+      } else {
+        music1.pause();
+        music2.currentTime = 0;
+        music2.play().then(() => {
+          currentMusic = 2;
+          // 监听音乐结束事件
+          music2.onended = () => {
+            setTimeout(() => playMusic(1), 8000); // 间隔8秒播放下一首
+          };
+        }).catch(e => {
+          console.log('自动播放被阻止，等待用户交互:', e);
+        });
+      }
+    }
+    
+    // 10条生日祝福语
+    const blessings = [
+      "愿你的每一天都充满阳光和欢笑！",
+      "生日快乐！愿所有梦想都能实现。",
+      "祝你生日快乐，健康幸福，万事如意！",
+      "愿这特别的一天带给你无尽的快乐！",
+      "生日快乐！愿你被世界温柔以待。",
+      "祝你生日快乐，年年有今日，岁岁有今朝！",
+      "愿你的生日充满惊喜和美好回忆！",
+      "生日快乐！愿你永远年轻，永远快乐。",
+      "祝你生日快乐，新的一岁更加精彩！",
+      "愿所有美好的事物都降临在你身上，生日快乐！"
+    ];
+    
+    // 初始化日期选择器功能
+    function initDatePicker() {
+      // 设置默认日期为公历9月17日
+      const defaultBirthday = new Date(2004, 8, 17); // 注意：月份是从0开始的，9月对应8
+      setDefaultDate(defaultBirthday);
+      
+      // 设置按钮点击事件
+      setBirthdayBtn.addEventListener('click', setSelectedBirthday);
+      
+      // 为输入框添加回车键触发设置
+      birthdayPicker.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          setSelectedBirthday();
+        }
+      });
+      
+      // 美化日期选择器的交互
+      birthdayPicker.addEventListener('focus', () => {
+        birthdayPicker.parentElement.classList.add('scale-105');
+        birthdayPicker.parentElement.style.transition = 'transform 0.3s ease';
+      });
+      
+      birthdayPicker.addEventListener('blur', () => {
+        birthdayPicker.parentElement.classList.remove('scale-105');
+      });
+    }
+    
+    // 设置默认日期
+    function setDefaultDate(date) {
+      // 格式化日期为YYYY-MM-DD
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      
+      birthdayPicker.value = formattedDate;
+      selectedBirthday = new Date(date);
+      
+      // 显示默认日期
+      displaySelectedDate();
+    }
+    
+    // 设置用户选择的生日
+    function setSelectedBirthday() {
+      const dateValue = birthdayPicker.value;
+      
+      if (!dateValue) {
+        // 显示提示动画
+        shakeElement(birthdayPicker);
+        return;
+      }
+      
+      // 解析选择的日期
+      const selectedDate = new Date(dateValue);
+      
+      if (isNaN(selectedDate.getTime())) {
+        // 日期无效
+        shakeElement(birthdayPicker);
+        return;
+      }
+      
+      // 保存选择的日期
+      selectedBirthday = selectedDate;
+      
+      // 显示已选择的日期
+      displaySelectedDate();
+      
+      // 添加成功反馈
+      showSuccessFeedback();
+      
+      // 立即更新倒计时
+      updateCountdown();
+    }
+    
+    // 显示已选择的日期
+    function displaySelectedDate() {
+      if (!selectedBirthday) return;
+      
+      // 格式化显示日期
+      const year = selectedBirthday.getFullYear();
+      const month = selectedBirthday.getMonth() + 1;
+      const day = selectedBirthday.getDate();
+      const formattedDisplay = `${year}年${month}月${day}日`;
+      
+      displayDateElement.textContent = formattedDisplay;
+      selectedDateDisplay.classList.remove('hidden');
+      selectedDateDisplay.classList.add('flex');
+    }
+    
+    // 显示设置成功的反馈
+    function showSuccessFeedback() {
+      // 创建短暂的成功提示
+      const feedback = document.createElement('div');
+      feedback.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-500 flex items-center';
+      feedback.innerHTML = '<i class="fa fa-check-circle mr-2"></i> 生日日期设置成功！';
+      document.body.appendChild(feedback);
+      
+      // 显示提示
+      setTimeout(() => {
+        feedback.style.transform = 'translateX(0)';
+      }, 100);
+      
+      // 3秒后隐藏提示
+      setTimeout(() => {
+        feedback.style.transform = 'translateX(calc(100% + 20px))';
+        setTimeout(() => {
+          feedback.remove();
+        }, 500);
+      }, 3000);
+      
+      // 创建一些庆祝粒子
+      createConfetti(20);
+    }
+    
+    // 摇晃元素（用于错误提示）
+    function shakeElement(element) {
+      element.classList.add('animate-shake');
+      element.style.animation = 'none';
+      element.offsetHeight; // 触发重绘
+      element.style.animation = 'shake 0.5s ease-in-out';
+      
+      // 移除边框样式
+      element.style.borderColor = '#F56565';
+      
+      setTimeout(() => {
+        element.style.borderColor = '';
+      }, 1000);
+    }
+    
+    // 更新倒计时元素比例，确保同比例缩放
+    function updateCountdownProportions() {
+      const screenWidth = window.innerWidth;
+      const countdownBoxes = document.querySelectorAll('.time-box');
+      const separators = document.querySelectorAll('.countdown-separator');
+      
+      // 小屏幕特殊处理 - 确保可以横向滚动
+      if (screenWidth < 640) {
+        countdownContainer.style.justifyContent = 'flex-start';
+        countdownContainer.style.paddingLeft = '5%';
+        countdownContainer.style.overflowX = 'auto';
+        
+        // 小屏幕上显示简化分隔符
+        const smallScreenSeparators = document.querySelectorAll('.countdown-separator');
+        smallScreenSeparators.forEach(sep => {
+          sep.classList.add('sm:hidden');
+          sep.classList.remove('hidden');
+          sep.style.fontSize = 'calc(var(--countdown-base-size) * 0.2)';
+        });
+      } else {
+        countdownContainer.style.justifyContent = 'center';
+        countdownContainer.style.paddingLeft = '0';
+        countdownContainer.style.overflowX = 'visible';
+        
+        // 大屏幕恢复正常分隔符
+        const largeScreenSeparators = document.querySelectorAll('.countdown-separator');
+        largeScreenSeparators.forEach(sep => {
+          sep.classList.remove('sm:hidden');
+        });
+      }
+    }
+    
+    // 创建星星背景
+    function createStars(count) {
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        
+        // 随机属性
+        const size = Math.random() * 2 + 0.5;
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+        const delay = Math.random() * 5;
+        const opacity = Math.random() * 0.7 + 0.3;
+        
+        // 应用样式
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.left = `${left}%`;
+        star.style.top = `${top}%`;
+        star.style.animationDelay = `${delay}s`;
+        star.style.opacity = opacity;
+        
+        starsContainer.appendChild(star);
+      }
+    }
+    
+    // 创建背景粒子效果
+    function createBackgroundParticles(count) {
+      // 粒子颜色池
+      const particleColors = [
+        'rgba(255, 107, 139, 0.6)', // time-day
+        'rgba(138, 111, 255, 0.6)', // time-hour
+        'rgba(79, 209, 197, 0.6)',  // time-minute
+        'rgba(255, 181, 71, 0.6)'   // time-second
+      ];
+      
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // 随机属性
+        const size = Math.random() * 4 + 1;
+        const color = particleColors[Math.floor(Math.random() * particleColors.length)];
+        const startPosX = Math.random() * 100;
+        const startPosY = Math.random() * 100;
+        const duration = Math.random() * 30 + 20;
+        const delay = Math.random() * 10;
+        const xEnd = (Math.random() - 0.5) * 200; // 随机X方向终点
+        const yEnd = (Math.random() - 0.5) * 200; // 随机Y方向终点
+        
+        // 应用样式
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.backgroundColor = color;
+        particle.style.left = `${startPosX}%`;
+        particle.style.top = `${startPosY}%`;
+        particle.style.setProperty('--x-end', `${xEnd}px`);
+        particle.style.setProperty('--y-end', `${yEnd}px`);
+        particle.style.animation = `particleMove ${duration}s linear ${delay}s infinite`;
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+    
+    // 显示祝福语，带有动画和颜色变换效果
+    function showBlessing(index) {
+      // 清空容器
+      blessingContainer.innerHTML = '';
+      
+      const blessing = blessings[index];
+      // 将祝福文字拆分成单个字符
+      const chars = blessing.split('');
+      
+      // 为每个字符创建元素，并添加动画
+      chars.forEach((char, i) => {
+        const charElement = document.createElement('span');
+        charElement.textContent = char;
+        charElement.className = `font-cheese text-[clamp(1rem,5vw,2.5rem)] text-primary/90 mx-0.5 sm:mx-1 inline-block opacity-0 transition-opacity duration-1000`;
+        
+        // 添加漂浮动画，每个字符有不同的延迟
+        const delayClasses = ['animate-float', 'animate-float-delay-1', 'animate-float-delay-2'];
+        charElement.classList.add(delayClasses[i % delayClasses.length]);
+        
+        blessingContainer.appendChild(charElement);
+        
+        // 逐个显示字符，创建动画效果
+        setTimeout(() => {
+          charElement.style.opacity = '1';
+        }, i * 100);
+      });
+      
+      // 启动颜色变换效果
+      startColorTransition();
+    }
+    
+    // 从左到右的颜色变换效果
+    function startColorTransition() {
+      const charElements = blessingContainer.querySelectorAll('span');
+      
+      // 每个字符依次改变颜色
+      charElements.forEach((char, index) => {
+        // 计算该字符应该使用的颜色索引
+        const colorIndex = index % colors.length;
+        
+        // 延迟改变颜色，形成从左到右的效果
+        setTimeout(() => {
+          char.style.color = colors[colorIndex];
+          
+          // 每个字符会定期变换颜色
+          setInterval(() => {
+            const newColorIndex = (colorIndex + Math.floor(Math.random() * colors.length)) % colors.length;
+            char.style.color = colors[newColorIndex];
+          }, 2000 + Math.random() * 3000); // 随机2-5秒变换一次
+        }, index * 150); // 每个字符间隔150ms变色
+      });
+    }
+    
+    // 创建庆祝彩屑效果
+    function createConfetti(count) {
+      const fireworksContainer = document.getElementById('fireworks');
+      
+      for (let i = 0; i < count; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        
+        // 随机属性
+        const size = Math.random() * 6 + 3;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const startPosX = Math.random() * 100;
+        const duration = Math.random() * 8 + 5;
+        const delay = Math.random() * 5;
+        const rotation = Math.random() * 360;
+        
+        // 应用样式
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        confetti.style.backgroundColor = color;
+        confetti.style.left = `${startPosX}%`;
+        confetti.style.transform = `rotate(${rotation}deg)`;
+        confetti.style.animation = `confetti-fall ${duration}s ease-in-out ${delay}s forwards`;
+        
+        fireworksContainer.appendChild(confetti);
+        
+        // 动画结束后移除元素
+        setTimeout(() => {
+          confetti.remove();
+        }, (duration + delay) * 1000);
+      }
+    }
+    
+    // 数字变化时的弹跳动画
+    function animateNumberChange(element) {
+      // 获取基础尺寸用于动画计算
+      const baseSize = getComputedStyle(document.documentElement).getPropertyValue('--countdown-base-size');
+      const scaleFactor = parseFloat(baseSize) < 80 ? 1.2 : 1.4; // 根据基础尺寸调整动画强度
+      
+      // 添加缩放和弹跳效果
+      element.style.transform = `scale(${scaleFactor})`;
+      element.style.opacity = '0.8';
+      
+      setTimeout(() => {
+        element.style.transform = 'scale(0.9)';
+        element.style.opacity = '0.9';
+        
+        setTimeout(() => {
+          element.style.transform = 'scale(1.1)';
+          
+          setTimeout(() => {
+            element.style.transform = 'scale(1)';
+            element.style.opacity = '1';
+          }, 100);
+        }, 150);
+      }, 200);
+    }
+    
+    // 初始化鼠标互动效果
+    function initMouseInteraction() {
+      const body = document.getElementById('main-body');
+      
+      body.addEventListener('mousemove', (e) => {
+        // 鼠标位置
+        const mouseX = e.clientX / window.innerWidth - 0.5;
+        const mouseY = e.clientY / window.innerHeight - 0.5;
+        
+        // 获取所有浮动形状
+        const floatingShapes = document.querySelectorAll('.floating-shape');
+        
+        // 根据鼠标位置轻微移动浮动形状，创造视差效果
+        floatingShapes.forEach((shape, index) => {
+          const factor = 0.02 * (index + 1); // 每个形状的移动系数不同
+          const currentX = parseFloat(shape.style.transform.replace(/[^0-9.-]/g, '')) || 0;
+          const currentY = 0; // 简化处理，只在X轴上移动
+          
+          // 平滑过渡到目标位置
+          const targetX = mouseX * 50 * factor;
+          const newX = currentX + (targetX - currentX) * 0.1;
+          
+          shape.style.transform = `translateX(${newX}px)`;
+        });
+      });
+      
+      // 点击时创建额外的粒子效果
+      body.addEventListener('click', (e) => {
+        // 根据屏幕尺寸调整粒子数量
+        const particleCount = window.innerWidth < 640 ? 10 : 15;
+        createClickParticles(e.clientX, e.clientY, particleCount);
+      });
+    }
+    
+    // 创建点击位置的粒子效果
+    function createClickParticles(x, y, count) {
+      const fireworksContainer = document.getElementById('fireworks');
+      
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // 根据屏幕尺寸调整粒子大小
+        const baseSize = window.innerWidth < 640 ? 3 : 5;
+        const size = Math.random() * baseSize + 2;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const angle = Math.random() * Math.PI * 2; // 随机角度
+        const distance = Math.random() * 80 + 40; // 随机距离
+        const duration = Math.random() * 1.5 + 0.5;
+        
+        // 计算终点位置
+        const endX = Math.cos(angle) * distance;
+        const endY = Math.sin(angle) * distance;
+        
+        // 应用样式
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.backgroundColor = color;
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        particle.style.transform = 'translate(0, 0)';
+        particle.style.opacity = '1';
+        
+        fireworksContainer.appendChild(particle);
+        
+        // 动画效果
+        setTimeout(() => {
+          particle.style.transition = `transform ${duration}s ease-out, opacity ${duration}s ease-out`;
+          particle.style.transform = `translate(${endX}px, ${endY}px)`;
+          particle.style.opacity = '0';
+        }, 10);
+        
+        // 动画结束后移除元素
+        setTimeout(() => {
+          particle.remove();
+        }, duration * 1000);
+      }
+    }
+    
+    // 初始化娱乐功能区
+    function initEntertainmentFeatures() {
+      // 1. 初始化生日倒计时
+      initBirthdayCountdown();
+      
+      // 2. 初始化祝福图片功能
+      initMiniFeatures();
+    }
+    
+    // 生日倒计时功能 - 使用用户选择的日期或默认日期
+    function initBirthdayCountdown() {
+      // 获取DOM元素
+      const daysElement = document.getElementById('days');
+      const hoursElement = document.getElementById('hours');
+      const minutesElement = document.getElementById('minutes');
+      const secondsElement = document.getElementById('seconds');
+      
+      // 存储当前时间值，用于比较是否变化
+      let currentDays = '00';
+      let currentHours = '00';
+      let currentMinutes = '00';
+      let currentSeconds = '00';
+      
+      // 更新倒计时
+      function updateCountdown() {
+        if (!selectedBirthday) return;
+        
+        const now = new Date();
+        // 创建今年的生日日期对象
+        let nextBirthday = new Date(now.getFullYear(), selectedBirthday.getMonth(), selectedBirthday.getDate());
+        
+        // 如果今年的生日已过，则使用明年的生日
+        if (nextBirthday < now) {
+          nextBirthday.setFullYear(now.getFullYear() + 1);
+        }
+        
+        const diff = nextBirthday - now;
+        
+        // 计算时间差
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        // 格式化数字为两位数
+        const daysStr = days.toString().padStart(2, '0');
+        const hoursStr = hours.toString().padStart(2, '0');
+        const minutesStr = minutes.toString().padStart(2, '0');
+        const secondsStr = seconds.toString().padStart(2, '0');
+        
+        // 更新天数
+        if (daysStr !== currentDays) {
+          daysElement.textContent = daysStr;
+          animateNumberChange(daysElement);
+          currentDays = daysStr;
+          
+          // 天数变化时添加额外粒子效果
+          createConfetti(15);
+        }
+        
+        // 更新小时
+        if (hoursStr !== currentHours) {
+          hoursElement.textContent = hoursStr;
+          animateNumberChange(hoursElement);
+          currentHours = hoursStr;
+        }
+        
+        // 更新分钟
+        if (minutesStr !== currentMinutes) {
+          minutesElement.textContent = minutesStr;
+          animateNumberChange(minutesElement);
+          currentMinutes = minutesStr;
+        }
+        
+        // 更新秒钟
+        if (secondsStr !== currentSeconds) {
+          secondsElement.textContent = secondsStr;
+          animateNumberChange(secondsElement);
+          currentSeconds = secondsStr;
+        }
+        
+        // 如果是生日当天，触发盛大庆祝效果
+        if (days === 0 && hours === 0 && minutes === 0 && seconds <= 10) {
+          // 大量彩屑庆祝
+          createConfetti(500);
+          
+          // 特殊倒计时完成动画
+          const allDigits = [daysElement, hoursElement, minutesElement, secondsElement];
+          allDigits.forEach((digit, i) => {
+            setTimeout(() => {
+              digit.style.transform = 'scale(1.8)';
+              digit.style.opacity = '0';
+              setTimeout(() => {
+                digit.textContent = '🎉';
+                digit.style.transform = 'scale(1)';
+                digit.style.opacity = '1';
+              }, 500);
+            }, i * 300);
+          });
+        }
+      }
+      
+      // 初始更新
+      updateCountdown();
+      
+      // 每秒更新一次
+      setInterval(updateCountdown, 1000);
+    }
+    
+    // 祝福图片功能
+    function initMiniFeatures() {
+      // 随机祝福图片
+      const blessingImage = document.getElementById('blessing-image');
+      const imageBtn = document.getElementById('image-btn');
+      
+      const imageSeeds = ['birthday1', 'birthday2', 'birthday3', 'birthday4', 'birthday5', 'birthday6', 'birthday7', 'birthday8'];
+      
+      function changeImage() {
+        const randomSeed = imageSeeds[Math.floor(Math.random() * imageSeeds.length)];
+        blessingImage.src = `https://picsum.photos/seed/${randomSeed}/200/100`;
+        blessingImage.alt = `生日祝福图片 ${randomSeed}`;
+        
+        // 添加图片切换动画
+        blessingImage.style.opacity = '0.5';
+        setTimeout(() => {
+          blessingImage.style.opacity = '1';
+        }, 300);
+      }
+      
+      imageBtn.addEventListener('click', changeImage);
+    }
+    
+    // 显示确认获得奖品的动画
+    function showConfirmationAnimation() {
+      const confirmation = document.createElement('div');
+      confirmation.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg z-50 bounce-in flex items-center';
+      confirmation.innerHTML = '<i class="fa fa-check-circle mr-2"></i> 已记录您的礼物!';
+      document.body.appendChild(confirmation);
+      
+      // 添加可爱的表情符号
+      const emojis = ['🎁', '💝', '😊', '✨'];
+      emojis.forEach((emoji, i) => {
+        const emojiEl = document.createElement('div');
+        emojiEl.className = 'emoji-decor';
+        emojiEl.textContent = emoji;
+        emojiEl.style.left = `${Math.random() * 30 + 35}%`;
+        emojiEl.style.top = '80%';
+        emojiEl.style.animationDelay = `${i * 0.3}s`;
+        document.body.appendChild(emojiEl);
+        
+        setTimeout(() => {
+          emojiEl.remove();
+        }, 3000);
+      });
+      
+      // 3秒后淡出
+      setTimeout(() => {
+        confirmation.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        confirmation.style.opacity = '0';
+        confirmation.style.transform = 'translate(-50%, 20px)';
+        
+        setTimeout(() => {
+          confirmation.remove();
+        }, 500);
+      }, 3000);
+    }
+    
+    // 页面加载完成后初始化
+    window.addEventListener('load', init);
+  </script>
+
+    <!-- 强制自动播放音乐的脚本 -->
+  <script>
+    window.addEventListener('load', function() {
+      // 尝试播放第一首音乐
+      var music1 = document.getElementById('music1');
+      music1.play().catch(function(error) {
+        console.log("Music1 autoplay failed:", error);
+      });
+
+      // 尝试播放第二首音乐
+      var music2 = document.getElementById('music2');
+      music2.play().catch(function(error) {
+        console.log("Music2 autoplay failed:", error);
+      });
+    });
+  </script>
+</body>
+</html>
+    
